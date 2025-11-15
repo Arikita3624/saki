@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import cute from "../assets/images/miku.jpg";
 import crying from "../assets/images/crying.jpg";
@@ -50,6 +50,17 @@ Muah… meow /ᐠ - ˕ -マ 💗`,
 
 const BirthdayCard: React.FC = () => {
   const [step, setStep] = useState<number>(0);
+  const letterRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (step === 2 && letterRef.current) {
+      const content = letterRef.current.querySelector(".letter-content");
+      if (content) {
+        const mid = (content.scrollHeight - content.clientHeight) / 2;
+        content.scrollTo({ top: mid, behavior: "smooth" });
+      }
+    }
+  }, [step]);
 
   // ⌨️ ESC để quay lại step 0 (thoát popup)
   const handleEsc = useCallback(
@@ -105,7 +116,6 @@ const BirthdayCard: React.FC = () => {
             </div>
           </motion.div>
         )}
-
         {/* STEP 1 - REJECT */}
         {step === 1 && (
           <motion.div
@@ -132,7 +142,6 @@ const BirthdayCard: React.FC = () => {
             </motion.button>
           </motion.div>
         )}
-
         {/* STEP 2 - LETTER */}
         {step === 2 && (
           <motion.div
@@ -141,49 +150,48 @@ const BirthdayCard: React.FC = () => {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
-            className="relative max-w-2xl w-full bg-cyan-50 border border-cyan-200 rounded-2xl shadow-lg p-8 pt-14 text-left font-[Quicksand]"
+            className="letter-container max-w-2xl w-full bg-gradient-to-b from-cyan-50 to-white font-[Quicksand]"
+            ref={letterRef}
           >
-            {/* Nút X */}
-            <button
-              onClick={() => setStep(0)}
-              className="absolute top-4 right-5 text-gray-400 hover:text-gray-600 text-lg"
-            >
-              ✕
-            </button>
+            {/* === HEADER – TĂNG KHOẢNG CÁCH === */}
+            <div className="letter-header">
+              <p className="text-cyan-600 text-sm font-medium">
+                Ooo.. A message (/ᐠ｡ꞈ｡ᐟ\)/♡ !!
+              </p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-cyan-500">
+                Happy Birthday, {config.crushName.toUpperCase()}
+              </h1>
+            </div>
 
-            {/* Header */}
-            <p className="absolute top-5 left-0 right-0 text-center text-gray-600 text-sm">
-              Ooo.. A message (/ᐠ｡ꞈ｡ᐟ\)/♡ !!
-            </p>
+            {/* === NỘI DUNG CUỘN === */}
+            <div className="letter-content gradient-scrollbar">
+              <motion.div
+                className="text-gray-700 space-y-4 leading-relaxed text-sm sm:text-base"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.8 }}
+              >
+                {config.longMsg.split("\n").map((p, i) => (
+                  <p key={i} className={p.trim() === "" ? "h-3" : ""}>
+                    {p}
+                  </p>
+                ))}
+              </motion.div>
+            </div>
 
-            <h1 className="text-2xl font-bold text-cyan-500 mb-6 text-center">
-              Happy Birthday, {config.crushName.toUpperCase()}
-            </h1>
-
-            <motion.div
-              className="text-gray-700 space-y-5 leading-relaxed text-left"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.8 }}
-            >
-              {config.longMsg.split("\n").map((paragraph, idx) => (
-                <p key={idx}>{paragraph}</p>
-              ))}
-            </motion.div>
-
-            <div className="mt-8 flex justify-center">
+            {/* === FOOTER === */}
+            <div className="letter-footer">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => setStep(3)}
-                className="bg-cyan-400 text-white px-8 py-2 rounded-full shadow-md hover:shadow-cyan-300/50 transition"
+                className="bg-gradient-to-r from-cyan-400 to-cyan-500 text-white px-8 py-2.5 rounded-full shadow-lg hover:shadow-cyan-300/50 transition text-sm font-medium"
               >
-                Next ✨
+                Next
               </motion.button>
             </div>
           </motion.div>
         )}
-
         {/* STEP 3 - END */}
         {step === 3 && (
           <motion.div
